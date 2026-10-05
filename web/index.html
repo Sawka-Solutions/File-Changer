@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Changer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="background-orbs">
+        <div class="orb orb1"></div>
+        <div class="orb orb2"></div>
+        <div class="orb orb3"></div>
+    </div>
+
+    <div class="container">
+        <!-- STEP 1: Choose File -->
+        <div id="step-1" class="glass-panel active">
+            <div class="glare"></div>
+            <h1>WHAT ARE YOU STARTING WITH?</h1>
+            <p>Select the original file you want to change.</p>
+            <button id="btn-browse" class="glass-btn">
+                <div class="btn-glare"></div>
+                Browse File
+            </button>
+            <div id="selected-file-info" class="hidden">
+                <p>Selected: <span id="file-name-display" class="highlight"></span></p>
+                <button id="btn-next-to-2" class="glass-btn primary">Next</button>
+            </div>
+        </div>
+
+        <!-- STEP 2: Choose Output Format -->
+        <div id="step-2" class="glass-panel hidden">
+            <div class="glare"></div>
+            <h1>CHOOSE YOUR OUTPUT</h1>
+            <p>What kind of file do you want this to become?</p>
+            <div id="format-options" class="options-grid">
+                <!-- Dynamically populated -->
+            </div>
+            <div class="actions">
+                <button id="btn-back-to-1" class="glass-btn secondary">Back</button>
+                <button id="btn-next-to-text" class="glass-btn primary hidden">Next</button>
+                <button id="btn-next-to-3" class="glass-btn primary hidden">Next</button>
+            </div>
+        </div>
+
+        <!-- STEP TEXT: Formatting Question -->
+        <div id="step-text-format" class="glass-panel hidden">
+            <div class="glare"></div>
+            <h1>DO WE NEED TO PRESERVE THE FORMATTING?</h1>
+            <p class="subtitle">(Does it have a lot of charts? special spacing? text pushed to one side or the other? Centered text?)</p>
+            <div class="options-grid">
+                <button class="glass-btn format-btn" data-preserve="yes">Yes, preserve it carefully</button>
+                <button class="glass-btn format-btn" data-preserve="no">No, just the basic text is fine</button>
+            </div>
+            <div class="actions">
+                <button id="btn-back-to-2-text" class="glass-btn secondary">Back</button>
+            </div>
+        </div>
+
+        <!-- STEP IMAGE: Background Question -->
+        <div id="step-image-format" class="glass-panel hidden">
+            <div class="glare"></div>
+            <h1>STRIP BACKGROUND?</h1>
+            <p class="subtitle">We can automatically remove the background and make it transparent!</p>
+            <div class="options-grid">
+                <button class="glass-btn format-btn-img" data-preserve="none">No, leave it alone</button>
+                <button class="glass-btn format-btn-img" data-preserve="ai">Yes, remove background</button>
+            </div>
+            <div class="actions">
+                <button id="btn-back-to-2-image" class="glass-btn secondary">Back</button>
+            </div>
+        </div>
+
+        <!-- STEP 3: Save Location -->
+        <div id="step-3" class="glass-panel hidden">
+            <div class="glare"></div>
+            <h1>WHERE TO?</h1>
+            <p>Choose a folder if you want this saved somewhere special, if not we will put it right next to the original file, same folder, same name, different filetype.</p>
+            <div class="save-actions">
+                <button id="btn-save-same" class="glass-btn primary large-btn">
+                    <div class="btn-glare"></div>
+                    Keep it where it is
+                </button>
+                <button id="btn-save-special" class="glass-btn primary large-btn">
+                    <div class="btn-glare"></div>
+                    Save it somewhere special
+                </button>
+            </div>
+            <div class="actions">
+                <button id="btn-back-to-prev" class="glass-btn secondary">Back</button>
+            </div>
+        </div>
+
+        <!-- STEP 4: Converting -->
+        <div id="step-4" class="glass-panel hidden">
+            <div class="glare"></div>
+            <h1>CHANGING...</h1>
+            <p>Please wait while we work our magic.</p>
+            <div class="loader"></div>
+            <p id="conversion-status">Starting...</p>
+        </div>
+
+        <!-- STEP 5: Done -->
+        <div id="step-5" class="glass-panel hidden">
+            <div class="glare"></div>
+            <h1>ALL DONE!</h1>
+            <p>Your file has been successfully changed.</p>
+            <p id="final-path" class="highlight small-text"></p>
+            <button id="btn-start-over" class="glass-btn primary">Change Another File</button>
+        </div>
+    </div>
+
+    <!-- Load Eel -->
+    <script type="text/javascript" src="/eel.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
