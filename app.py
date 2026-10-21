@@ -207,5 +207,24 @@ def convert_file(input_path, output_ext, preserve_formatting, save_special):
     except Exception as e:
         return {"success": False, "error": str(e)}
 
+def start_app():
+    # Multi-tier fallback launch so it works reliably on any Windows user's machine
+    for mode in ['default', 'edge', 'chrome', False]:
+        try:
+            if mode is False:
+                import webbrowser
+                eel.start('index.html', mode=False, port=0, block=False)
+                port = eel._start_args.get('port', 8000)
+                webbrowser.open(f'http://localhost:{port}/index.html')
+                while True:
+                    eel.sleep(1.0)
+            else:
+                eel.start('index.html', mode=mode, port=0)
+            break
+        except (SystemExit, KeyboardInterrupt):
+            break
+        except Exception:
+            continue
+
 if __name__ == '__main__':
-    eel.start('index.html', mode='default', port=0)
+    start_app()
