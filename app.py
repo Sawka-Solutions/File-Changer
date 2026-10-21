@@ -94,9 +94,13 @@ def do_convert_file(input_path, output_ext, preserve_formatting, save_special):
             img = Image.open(input_path)
             
             if preserve_formatting == "ai":
-                # Use AI to remove the background
-                from rembg import remove
-                img = remove(img)
+                # Use AI to remove the background 100% offline using bundled model
+                models_dir = get_resource_path('models')
+                os.environ["U2NET_HOME"] = models_dir
+                os.environ["REMBG_HOME"] = models_dir
+                from rembg import remove, new_session
+                session = new_session('u2net')
+                img = remove(img, session=session)
 
             # convert rgba to rgb for jpeg/bmp
             if output_ext.lower() in ['jpg', 'jpeg', 'bmp'] and img.mode in ("RGBA", "P"):
