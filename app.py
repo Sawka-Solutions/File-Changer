@@ -208,4 +208,4 @@ def convert_file(input_path, output_ext, preserve_formatting, save_special):
         return {"success": False, "error": str(e)}
 
 if __name__ == '__main__':
-    eel.start('index.html', size=(700, 600), port=0)
+    eel.start('index.html', mode='default', port=0)
