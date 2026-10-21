@@ -3,7 +3,6 @@ import os
 import tkinter as tk
 from tkinter import filedialog
 from PIL import Image
-from rembg import remove
 import imageio_ffmpeg
 import subprocess
 import fitz  # PyMuPDF
@@ -99,6 +98,7 @@ def convert_file(input_path, output_ext, preserve_formatting, save_special):
             
             if preserve_formatting == "ai":
                 # Use AI to remove the background
+                from rembg import remove
                 img = remove(img)
 
             # convert rgba to rgb for jpeg/bmp

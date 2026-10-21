@@ -1,11 +1,16 @@
 # -*- mode: python ; coding: utf-8 -*-
+from PyInstaller.utils.hooks import copy_metadata
+
+datas = [('web', 'web')]
+datas += copy_metadata('pymatting')
+datas += copy_metadata('rembg')
 
 
 a = Analysis(
     ['app.py'],
     pathex=[],
     binaries=[],
-    datas=[('web', 'web')],
+    datas=datas,
     hiddenimports=['rembg'],
     hookspath=[],
     hooksconfig={},
