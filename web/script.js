@@ -1,3 +1,31 @@
+// pywebview bridge for Python API
+const backend = {
+    async choose_file() {
+        if (window.pywebview && window.pywebview.api) {
+            return await window.pywebview.api.choose_file();
+        }
+        return null;
+    },
+    async get_output_formats(category) {
+        if (window.pywebview && window.pywebview.api) {
+            return await window.pywebview.api.get_output_formats(category);
+        }
+        return [];
+    },
+    async convert_file(inputPath, outputExt, preserveFormatting, saveSpecial) {
+        if (window.pywebview && window.pywebview.api) {
+            return await window.pywebview.api.convert_file(inputPath, outputExt, preserveFormatting, saveSpecial);
+        }
+        return { success: false, error: "Backend API not ready" };
+    }
+};
+
+const eel = {
+    choose_file: () => () => backend.choose_file(),
+    get_output_formats: (cat) => () => backend.get_output_formats(cat),
+    convert_file: (...args) => () => backend.convert_file(...args)
+};
+
 let selectedFilePath = "";
 let selectedCategory = "";
 let selectedOutputFormat = "";

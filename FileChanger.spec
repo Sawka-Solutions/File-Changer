@@ -4,11 +4,12 @@ from PyInstaller.utils.hooks import collect_all
 datas = [('web', 'web')]
 binaries = []
 hiddenimports = []
-tmp_ret = collect_all('rembg')
-datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
-tmp_ret = collect_all('pymatting')
-datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
 
+for pkg in ['rembg', 'pymatting', 'webview', 'clr_loader', 'pythonnet']:
+    d, b, h = collect_all(pkg)
+    datas += d
+    binaries += b
+    hiddenimports += h
 
 a = Analysis(
     ['app.py'],
@@ -19,7 +20,7 @@ a = Analysis(
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=[],
+    excludes=['eel'],
     noarchive=False,
     optimize=0,
 )

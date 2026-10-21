@@ -1,4 +1,4 @@
-import eel
+import sys
 import os
 import tkinter as tk
 from tkinter import filedialog
@@ -8,9 +8,7 @@ import subprocess
 import fitz  # PyMuPDF
 from pdf2docx import Converter
 import docx
-
-# Initialize eel with web folder
-eel.init('web')
+import webview
 
 IMAGE_EXTS = ['.png', '.jpg', '.jpeg', '.webp', '.bmp', '.gif', '.tiff', '.ico']
 AUDIO_EXTS = ['.mp3', '.wav', '.flac', '.aac', '.ogg', '.m4a']
@@ -25,8 +23,10 @@ def get_category(ext):
     if ext in TEXT_EXTS: return 'text'
     return 'unknown'
 
-@eel.expose
-def choose_file():
+def get_ffmpeg_path():
+    return imageio_ffmpeg.get_ffmpeg_exe()
+
+def choose_file_dialog():
     root = tk.Tk()
     root.withdraw()
     root.attributes('-topmost', True)
@@ -40,7 +40,9 @@ def choose_file():
             ("Text", " ".join([f"*{x}" for x in TEXT_EXTS]))
         ]
     )
-    if not file_path: return None
+    root.destroy()
+    if not file_path:
+        return None
     
     _, ext = os.path.splitext(file_path)
     category = get_category(ext)
@@ -52,20 +54,14 @@ def choose_file():
         "ext": ext.lower()
     }
 
-@eel.expose
-def get_output_formats(category):
+def get_formats(category):
     if category == 'image': return [ext[1:] for ext in IMAGE_EXTS]
     if category == 'audio': return [ext[1:] for ext in AUDIO_EXTS]
     if category == 'video': return [ext[1:] for ext in VIDEO_EXTS]
     if category == 'text': return [ext[1:] for ext in TEXT_EXTS]
     return []
 
-def get_ffmpeg_path():
-    # Use imageio_ffmpeg to get a guaranteed ffmpeg binary path
-    return imageio_ffmpeg.get_ffmpeg_exe()
-
-@eel.expose
-def convert_file(input_path, output_ext, preserve_formatting, save_special):
+def do_convert_file(input_path, output_ext, preserve_formatting, save_special):
     try:
         _, ext = os.path.splitext(input_path)
         filename = os.path.basename(input_path)
@@ -82,6 +78,7 @@ def convert_file(input_path, output_ext, preserve_formatting, save_special):
                 defaultextension=f".{output_ext}",
                 title="WHERE TO?"
             )
+            root.destroy()
             if not output_path:
                 return {"success": False, "error": "Save cancelled"}
         else:
@@ -180,8 +177,6 @@ def convert_file(input_path, output_ext, preserve_formatting, save_special):
             
             # DOCX to PDF
             elif in_ext == '.docx' and out_ext == '.pdf':
-                # We extract text and make a basic PDF if formatting isn't needed, 
-                # or warn if formatting is needed (requires Word COM which we don't use here for offline portability)
                 if preserve_formatting == "yes":
                     try:
                         import win32com.client
@@ -197,7 +192,7 @@ def convert_file(input_path, output_ext, preserve_formatting, save_special):
                     text = "\n".join([para.text for para in doc_obj.paragraphs])
                     out_doc = fitz.open()
                     page = out_doc.new_page()
-                    page.insert_text((50, 50), text[:5000], fontsize=11) # Simple truncation for now
+                    page.insert_text((50, 50), text[:5000], fontsize=11)
                     out_doc.save(output_path)
             
             else:
@@ -207,24 +202,35 @@ def convert_file(input_path, output_ext, preserve_formatting, save_special):
     except Exception as e:
         return {"success": False, "error": str(e)}
 
-def start_app():
-    # Multi-tier fallback launch so it works reliably on any Windows user's machine
-    for mode in ['default', 'edge', 'chrome', False]:
-        try:
-            if mode is False:
-                import webbrowser
-                eel.start('index.html', mode=False, port=0, block=False)
-                port = eel._start_args.get('port', 8000)
-                webbrowser.open(f'http://localhost:{port}/index.html')
-                while True:
-                    eel.sleep(1.0)
-            else:
-                eel.start('index.html', mode=mode, port=0)
-            break
-        except (SystemExit, KeyboardInterrupt):
-            break
-        except Exception:
-            continue
+class AppApi:
+    def choose_file(self):
+        return choose_file_dialog()
+
+    def get_output_formats(self, category):
+        return get_formats(category)
+
+    def convert_file(self, input_path, output_ext, preserve_formatting, save_special):
+        return do_convert_file(input_path, output_ext, preserve_formatting, save_special)
+
+def get_resource_path(relative_path):
+    if getattr(sys, 'frozen', False):
+        base_dir = getattr(sys, '_MEIPASS', os.path.dirname(sys.executable))
+    else:
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(base_dir, relative_path)
 
 if __name__ == '__main__':
-    start_app()
+    api = AppApi()
+    html_file = get_resource_path(os.path.join('web', 'index.html'))
+    icon_file = get_resource_path('icon.ico')
+    
+    window = webview.create_window(
+        title='File Changer',
+        url=html_file,
+        js_api=api,
+        width=720,
+        height=640,
+        resizable=False,
+        background_color='#0f1115'
+    )
+    webview.start(icon=icon_file if os.path.exists(icon_file) else None)
